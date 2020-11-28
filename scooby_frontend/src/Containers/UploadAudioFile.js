@@ -1,15 +1,16 @@
 import React from "react";
 import {connect} from 'react-redux'
 import {getPosts,deletePost,uploadFile} from '../Redux/actions.js'
+import {Box, Button, Text, TextArea} from 'grommet';
 
 
 class UploadAudioFile extends React.Component {
-
     componentDidMount() {
     }
 
     state = {
-        selectedFile: null
+        selectedFile: null,
+        script: "",
     }
 
     onFileChange = event => {
@@ -55,21 +56,24 @@ class UploadAudioFile extends React.Component {
     render() {
         return (
             <div>
-                <div>
-                    <h1>
-                        Scooby
-                    </h1>
-                    <h3>
-                        Upload your audio file to practice!
-                    </h3>
-                    <div>
+                <Box
+                    direction="row"
+                    pad="medium"
+                >
+                    <Box fill="horizontal" margin="medium">
+                        <TextArea
+                            pad="medium"
+                            placeholder="enter your script to practice"
+                            value={this.state.script}
+                            onChange={event => this.setState({script: event.target.value})}
+                        />
+                    </Box>
+                    <Box width="300px" margin="medium" justify="center" direction="column">
+                        <Text size="medium" margin={{"bottom": "xsmall"}} weight="bold">Upload your recording</Text>
                         <input type="file" onChange={this.onFileChange} />
-                        <button onClick={this.onFileUpload}>
-                            Upload!
-                        </button>
-                    </div>
-                    {this.fileData()}
-                </div>
+                    </Box>
+                    <Button margin="medium" primary label="Practice" onClick={this.onFileUpload}/>
+                </Box>
             </div>
         );
     }
