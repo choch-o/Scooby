@@ -31,6 +31,13 @@ In `Scooby/scooby_backend`, perform migrations
 python manage.py makemigrations
 python manage.py migrate
 ```
+
+Setup DeepSpeech in `Scooby/scooby_backend/STT_models`.
+```
+cd STT_models
+sh download.sh
+```
+
 Run the server.
 ```
 python manage.py runserver 0.0.0.0:8000
