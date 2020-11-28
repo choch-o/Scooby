@@ -19,4 +19,4 @@ class SpeechAce():
         response = requests.post(url, data=payload, files=files)
         print(response)
         print(response.text)
-        return response
+        return response.text

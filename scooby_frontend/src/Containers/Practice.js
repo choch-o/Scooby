@@ -6,6 +6,7 @@ import {Box, Text, Heading} from 'grommet'
 class Practice extends React.Component {
     render() {
         const stt_result = this.props.stt_result
+        const speechace_result = this.props.speechace_result
 
         return (
             <Box>

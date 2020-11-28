@@ -77,7 +77,8 @@ class UploadAudioFile extends React.Component {
 
 const mapStateToProps = (state) => ({
     posts: state.posts,
-    stt_result: state.stt_result
+    stt_result: state.stt_result,
+    speechace_result: state.speechace_result
 })
 
 const mapDispatchToProps = {

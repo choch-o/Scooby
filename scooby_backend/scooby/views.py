@@ -36,6 +36,5 @@ def handle_uploaded_file(raw_audio):
     with open('myfile.wav', mode='bw') as f:
         f.write(raw_audio.read())
     stt_result = MozillaSTT('myfile.wav')# temporary
-    speechace_result = SpeechAce('myfile.wav')
-
+    speechace_result = SpeechAce('myfile.wav').example()
     return stt_result, speechace_result
