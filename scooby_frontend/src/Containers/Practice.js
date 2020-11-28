@@ -11,7 +11,7 @@ class Practice extends React.Component {
             <Box>
                 <Heading>Result</Heading>
                 <Text>{stt_result}</Text>
-                <Text/>{speechace_result}</Text>
+                <Text>{speechace_result}</Text>
             </Box>
         );
     }
