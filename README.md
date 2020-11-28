@@ -38,7 +38,7 @@ cd STT_models
 sh download.sh
 ```
 
-Run the server.
+Run the server in `Scooby/scooby_backend`.
 ```
 python manage.py runserver 0.0.0.0:8000
 ```
