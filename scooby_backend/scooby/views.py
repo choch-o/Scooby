@@ -8,6 +8,7 @@ from rest_framework.parsers import FileUploadParser
 from .models import Post
 from .serializers import PostSerializer
 from STT_models.stt_engine import MozillaSTT
+from SpeechAce.speechace import SpeechAce
 import os
 import scipy.io.wavfile
 
@@ -22,9 +23,9 @@ class FileUploadView(APIView):
 
     def put(self, request, format=None):
         file_obj = request.FILES['file']
-        stt_result = handle_uploaded_file(file_obj)
+        stt_result, speechace_result = handle_uploaded_file(file_obj)
         print("Put response :" + stt_result)
-        return Response(data={"stt_result": stt_result}, status=status.HTTP_201_CREATED)
+        return Response(data={"stt_result": stt_result, "speechace_result": speechace_result}, status=status.HTTP_201_CREATED)
 
 def handle_uploaded_file(raw_audio):
     # f is Cloass UploadedFile
@@ -35,5 +36,6 @@ def handle_uploaded_file(raw_audio):
     with open('myfile.wav', mode='bw') as f:
         f.write(raw_audio.read())
     stt_result = MozillaSTT('myfile.wav')# temporary
+    speechace_result = SpeechAce('myfile.wav')
 
-    return stt_result
+    return stt_result, speechace_result
