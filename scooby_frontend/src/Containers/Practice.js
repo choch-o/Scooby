@@ -11,13 +11,15 @@ class Practice extends React.Component {
             <Box>
                 <Heading>Result</Heading>
                 <Text>{stt_result}</Text>
+                <Text>{speechace_result}</Text>
             </Box>
         );
     }
 }
 
 const mapStateToProps = (state) => ({
-    stt_result: state.stt_result
+    stt_result: state.stt_result,
+    speechace_result: state.speechace_result
 })
 
 const mapDispatchToProps = {}

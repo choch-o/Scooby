@@ -21,7 +21,7 @@ const postReducer = (state = initialState, action) => {
         }
 
         case Types.UPLOAD_FILE: {
-            return {...state, stt_result: action.payload.stt_result};
+            return {...state, stt_result: action.payload.stt_result, speechace_result: action.payload.speechace_result};
         }
         default:
             return state;
