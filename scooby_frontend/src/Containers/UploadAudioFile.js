@@ -68,8 +68,8 @@ class UploadAudioFile extends React.Component {
                             onChange={event => this.setState({script: event.target.value})}
                         />
                     </Box>
-                    <Box width="300px" margin="medium" justify="center" direction="column">
-                        <Text size="medium" margin={{"bottom": "xsmall"}} weight="bold">Upload your recording</Text>
+                    <Box width="400px" justify="center" direction="column">
+                        <Text size="medium" margin={{"bottom": "xsmall"}} weight="bold">upload your recording</Text>
                         <input type="file" onChange={this.onFileChange} />
                     </Box>
                     <Button margin="medium" primary label="Practice" onClick={this.onFileUpload}/>

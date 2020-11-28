@@ -2,7 +2,9 @@ import Types from "./types";
 const initialState = {
     posts: [],
     loading:false,
-    stt_result: ""
+    stt_result: "",
+    speechace_result: "",
+    google_result: "",
 };
 
 const postReducer = (state = initialState, action) => {
