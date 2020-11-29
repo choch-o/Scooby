@@ -168,7 +168,7 @@ def google_transcribe(audio_file_path):
     response = client.recognize(config=config, audio=audio)
     # print(response)
 
-    return response
+    return response, response.results[0].alternatives[0].transcript
 
 
 def simple_word_scorer(script, response):
