@@ -288,6 +288,17 @@ def play_audio(audio_path):
     play_obj = wave_obj.play()
     play_obj.wait_done()  # Wait until sound has finished playing
 
+
+def play_audio_pydub(audio_path):
+
+    # filename = 'myfile.wav'
+    sound = AudioSegment.from_file(audio_path)
+    play(sound)
+    # wave_obj = sa.WaveObject.from_wave_file(audio_path)
+    # play_obj = wave_obj.play()
+    # play_obj.wait_done()  # Wait until sound has finished playing
+
+
 def google_tts(raw_script):
     client = texttospeech.TextToSpeechClient()
     synthesis_input = texttospeech.SynthesisInput(text=raw_script)
