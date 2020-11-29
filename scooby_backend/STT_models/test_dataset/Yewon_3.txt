@@ -1,0 +1,1 @@
+As a solution, we suggest “scoring” user’s speech and show them the results. For instance, in the previous example, we confirmed that the testee’s speech actually improved after a practice session. 
