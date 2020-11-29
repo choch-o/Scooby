@@ -9,7 +9,7 @@ const theme = {
         colors: {
             // background: '#f8f7f5',
             brand: '#fc4444',
-            // active: '#436c00',
+            // active: '#ff5d52',
             // focus: '#436c00',
             // bullet: '#436c00',
             // highlight: '#b1ca80',

@@ -25,8 +25,21 @@ class SpeechAce():
         word_score_list = response_json["text_score"]["word_score_list"]
         phonetic_transcription, correct_pronunciation = self.process_phone_scores(word_score_list)
 
+        # get words that are wrong
+        actual_text = self.user_text.split()
+        user_transcript = phonetic_transcription.split()
+        correct_transcript = correct_pronunciation.split()
+
+        iscorrect = ""
+
+        for i in range(len(user_transcript)):
+        	if user_transcript[i] == correct_transcript[i]:
+        		iscorrect += "1"
+        	else:
+        		iscorrect += "0"
+
 #         return response.text
-        return phonetic_transcription, correct_pronunciation
+        return self.user_text, phonetic_transcription, correct_pronunciation, iscorrect
 
     def get_score(self):
         url = self.url
@@ -39,6 +52,7 @@ class SpeechAce():
         response = requests.request("POST", url, headers=headers, data=payload, files=files)
         response_json = response.json()
         score = response_json["text_score"]["quality_score"]
+        grade = "default"
         if score >= 90:
             grade = "A"
         elif score >= 80 and score < 90:
@@ -50,7 +64,15 @@ class SpeechAce():
         else:
             grade = "F"
 
-        return grade
+        fluency = response_json["text_score"]["fluency"]["overall_metrics"]
+        syllable_count = fluency["syllable_count"]
+        correct_syllable_count = fluency["correct_syllable_count"]
+        word_count = fluency["word_count"]
+        correct_word_count = fluency["correct_word_count"]
+        ielts_estimate = fluency["ielts_estimate"]
+        pte_estimate = fluency["pte_estimate"]
+
+        return grade, syllable_count, correct_syllable_count, word_count, correct_word_count, ielts_estimate, pte_estimate
 
 
     def validate_text(self):

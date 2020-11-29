@@ -24,3 +24,4 @@ venv/
 STT_models/audio*
 *.wav
 STT_models/._audio
+STT_models/*.json
