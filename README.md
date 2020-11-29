@@ -13,6 +13,8 @@ source venv/bin/activate
 mkdir db
 sudo chmod a+w db
 ```
+##### Note
+The __*backend_env*__ and __*frontend_env*__ will be provided privately if needed.
 
 Copy .env files.
 ```
@@ -42,7 +44,7 @@ Setup GoogleCredentials to use Google APIs.
 Run this command in your terminal
 export GOOGLE_APPLICATION_CREDENTIALS="[PATH]"
 e.g. export GOOGLE_APPLICATION_CREDENTIALS="/home/user/Downloads/service-account-file.json"
-The json credentials files will be provided privately.
+The json credentials files will be provided privately if needed.
 ```
 
 Run the server in `Scooby/scooby_backend`.
