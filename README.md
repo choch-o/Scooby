@@ -1,5 +1,34 @@
 # Scooby
+--------------
+# Code Structure
+Important files are highlighted with ** ** . (Not all files are listed)
+```
+Scooby/
+- scooby_backend/
+-- .env
+-- scooby/                  - Django models, urls, views
+--- **views.py**
+-- scooby_backend/          - Routing and db settings
+-- SpeechAce/           
+--- **speechace.py**        - Functions for using SpeechAce API
+-- STT_models/
+--- **stt_engine.py**       - Functions for using Google Speech API
 
+- scooby_frontend/
+-- .env
+-- src/
+--- Containers/             - Main UI components
+---- **Scooby.js**          - Main file
+---- **UploadAudioFile.js** - Component for uploading the script and audio file and run
+---- **Practice.js**        - Component for showing the explanations and results
+--- Redux/                  - Main Redux components for data management and communication with backend
+---- **actions.js**         - Communication with backend
+---- **reducers.js**        - Dispatch to Redux
+--- index.js
+--- App.js
+```
+
+# How to Set up
 1. Clone the repository.
 ```
 git clone https://github.com/choch-o/Scooby.git
