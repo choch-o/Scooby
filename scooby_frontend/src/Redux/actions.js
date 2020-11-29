@@ -4,7 +4,7 @@ import axios from "axios";
 export const uploadFile = (formData) => {
     return (dispatch, getState) => {
         axios.put(`${process.env.REACT_APP_HOST_IP_ADDRESS}/api/upload_file/`, formData,
-            { file: formData.get("file") }, {
+            { file: formData.get("file"), script: formData.get("script") }, {
             headers: {
                 'Content-Disposition': 'attachment; filename=formData.get("name")'
             }

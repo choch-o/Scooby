@@ -6,7 +6,8 @@ import {Box, Text, Grid, Heading} from 'grommet'
 class Practice extends React.Component {
     render() {
         const stt_result = this.props.stt_result
-        const speechace_result = this.props.speechace_result
+        const correct_pronunciation = this.props.correct_pronunciation
+        const phonetic_transcription = this.props.phonetic_transcription
         const google_result = this.props.google_result
         const top_border = { "color": "border", "size": "medium", "style": "dashed", "side": "bottom" }
 
@@ -47,7 +48,7 @@ class Practice extends React.Component {
                     <Heading level="3" margin="medium" alignSelf="center">DeepSpeech</Heading>
                 </Box>
                 <Box gridArea="result_deepspeech" round="medium" pad="medium" margin="small"
-                     alignSelf="center" background="light-3">
+                     alignSelf="center" background="light-1">
                     <Text>{stt_result}</Text>
                 </Box>
                 <Box gridArea="score_deepspeech" alignSelf="center">
@@ -59,8 +60,11 @@ class Practice extends React.Component {
                     <Heading level="3" margin="medium" alignSelf="center">SpeechAce</Heading>
                 </Box>
                 <Box gridArea="result_speechace" round="medium" pad="medium" margin="small"
-                     alignSelf="center" background="light-3">
-                    <Text>{speechace_result}</Text>
+                     alignSelf="center" background="light-1">
+                    <table>
+                        <tr><td><Text weight="bold">Correct: </Text></td><td>{correct_pronunciation}</td></tr>
+                        <tr><td><Text weight="bold">Yours: </Text></td><td>{phonetic_transcription}</td></tr>
+                    </table>
                 </Box>
                 <Box gridArea="score_speechace" alignSelf="center">
                     <Heading level="3" alignSelf="center">A</Heading>
@@ -71,7 +75,7 @@ class Practice extends React.Component {
                     <Heading level="3" margin="medium" alignSelf="center">Google</Heading>
                 </Box>
                 <Box gridArea="result_google" round="medium" pad="medium" margin="small"
-                     alignSelf="center" background="light-3">
+                     alignSelf="center" background="light-1">
                     <Text>{google_result}</Text>
                 </Box>
                 <Box gridArea="score_google" alignSelf="center">
@@ -84,7 +88,8 @@ class Practice extends React.Component {
 
 const mapStateToProps = (state) => ({
     stt_result: state.stt_result,
-    speechace_result: state.speechace_result,
+    correct_pronunciation: state.correct_pronunciation,
+    phonetic_transcription: state.phonetic_transcription,
     google_result: state.google_result
 })
 

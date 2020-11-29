@@ -2,21 +2,97 @@ import requests
 import os
 
 class SpeechAce():
-    def __init__(self, user_file):
-        self.url = "https://api2.speechace.com/api/scoring/text/v0.5/json"
+    def __init__(self, user_text="apple", user_file="apple.wav"):
+        self.url = "https://api2.speechace.com/api/"
         self.key = os.environ['SPEECHACE_KEY']
         self.dialect = "en-us"
-        self.user_id = "elianakim"
+        self.user_id = "cs492f-shy"
         self.user_file = user_file
-    def example(self):
+        self.user_text = user_text
+
+    def score_pronunciation(self):
         url = self.url
-        url += "?" + 'key=' + self.key + '&dialect=' + self.dialect + '&user_id=' + self.user_id
-        print(url)
-        payload = {'text': 'apple', 'question_info' : 'u1/q1'};
+        url += "scoring/text/v0.5/json" + "?" + 'key=' + self.key + '&dialect=' + self.dialect + \
+               '&user_id=' + self.user_id
+        payload = {'text': self.user_text, 'question_info': '\'u1/q1\''} # , 'include_fluency':'1', 'include_intonation':'1', 'stress_version':'0.8'}
         user_file_handle = open(self.user_file, 'rb')
-        print(user_file_handle)
         files = {'user_audio_file': user_file_handle}
-        response = requests.post(url, data=payload, files=files)
-        print(response)
-        print(response.text)
-        return response.text
+        headers = {}
+        response = requests.request("POST", url, headers=headers, data=payload, files=files)
+
+        response_json = response.json()
+        print(response_json)
+        word_score_list = response_json["text_score"]["word_score_list"]
+        phonetic_transcription, correct_pronunciation = self.process_phone_scores(word_score_list)
+
+#         return response.text
+        return phonetic_transcription, correct_pronunciation
+
+    def validate_text(self):
+        '''
+        validate whether all the words in the text
+        exist in the SpeechAce lexicon
+        '''
+        # curl --location --request POST
+        # 'https://api.speechace.co/api/validating/text/v0.5/json?key={{speechacekey}}&text=%22Validate%20these%20words%20existeee.%22&dialect=en-us'
+        url = self.url
+        url += "validating/text/v0.5/json" + "?" + 'key=' + self.key + '&dialect=' + self.dialect + \
+               '&text=\"' + self.user_text + '\"' 
+        payload = {}
+        files = {}
+        headers = {}
+
+        response = request.request("POST", url, headers=headers, data=payload, files=files)
+        return response
+
+    def transcribe(self):
+        # https://api.speechace.co/api/scoring/speech/v0.5/json?key={{speechacekey}}&dialect=en-us&user_id=XYZ-ABC-99001
+        url = self.url
+        url += "scoring/speech/v0.5/json?key=" + self.key + "&dialect=en-us" + self.dialect + \
+                "&user_id=" + self.user_id
+        payload = {'include_fluency': '1'}
+        files = [
+          ('user_audio_file', open(self.user_file,'rb'))
+        ]
+        headers= {}
+
+        response = requests.request("POST", url, headers=headers, data = payload, files = files)
+
+        print("Transcribe response")
+        response_text = response.text.encode('utf8')
+        print(response_text)
+        return response_text
+
+    def score_phoneme_list(self):
+        # https://api.speechace.co/api/scoring/phone_list/v0.5/json?key={{speechacekey}}&user_id=XYZ-ABC-99001&dialect=en-us
+        url = self.url
+        url += "scoring/phone_list/v0.5/json?key=" + self.key + "&user_id=" + self.user_id + "&dialect=en-us"
+        payload = {'phone_list': 'g|ao|ch|ah',
+        'question_info': '\'u1/q1\''}
+        files = [
+          ('user_audio_file', open(self.user_file,'rb'))
+        ]
+        headers= {}
+
+        response = requests.request("POST", url, headers=headers, data = payload, files = files)
+
+        response_text = response.text.encode('utf8')
+        response_json = response.json()
+        print(response_json)
+        phone_score_list = response_json["word_score"]["phone_score_list"]
+        phonetic_transcription = self.process_phone_scores(phone_score_list)
+
+        return phonetic_transcription
+
+    def process_phone_scores(self, word_score_list):
+        correct_pronunciation = ""
+        phonetic_transcription = ""
+        for word in word_score_list:
+            phone_score_list = word["phone_score_list"]
+            for phone_score in phone_score_list:
+                correct_pronunciation += phone_score["phone"] if phone_score["phone"] != None else ""
+                phonetic_transcription += phone_score["sound_most_like"] if phone_score["sound_most_like"] != None else ""
+            correct_pronunciation += " "
+            phonetic_transcription += " "
+        return phonetic_transcription, correct_pronunciation
+

@@ -22,12 +22,16 @@ class FileUploadView(APIView):
     parser_class = (FileUploadParser,)
 
     def put(self, request, format=None):
-        file_obj = request.FILES['file']
-        stt_result, speechace_result = handle_uploaded_file(file_obj)
-        print("Put response :" + stt_result)
-        return Response(data={"stt_result": stt_result, "speechace_result": speechace_result}, status=status.HTTP_201_CREATED)
+        print("REQUEST FILES: ")
+        print(request.data)
+        file_obj = request.data['file']
+        script = request.data['script']
+        stt_result, phonetic_transcription, correct_pronunciation = handle_uploaded_file(file_obj, script)
+        # print("Put response :" + stt_result)
+        return Response(data={"stt_result": stt_result, "phonetic_transcription": phonetic_transcription, \
+        "correct_pronunciation": correct_pronunciation}, status=status.HTTP_201_CREATED)
 
-def handle_uploaded_file(raw_audio):
+def handle_uploaded_file(raw_audio, script):
     # f is Cloass UploadedFile
     # https://docs.djangoproject.com/en/3.1/ref/files/uploads/#django.core.files.uploadedfile.UploadedFile
     # TODO: Transcribe
@@ -35,6 +39,8 @@ def handle_uploaded_file(raw_audio):
 
     with open('myfile.wav', mode='bw') as f:
         f.write(raw_audio.read())
-    stt_result = MozillaSTT('myfile.wav')# temporary
-    speechace_result = SpeechAce('myfile.wav').example()
-    return stt_result, speechace_result
+#     stt_result = MozillaSTT('myfile.wav')
+    stt_result = "placeholder"
+    phonetic_transcription, correct_pronunciation = SpeechAce(user_text=script, user_file='myfile.wav').score_pronunciation()
+#     speechace_result = SpeechAce(user_text=script, user_file='myfile.wav').score_phoneme_list()
+    return stt_result, phonetic_transcription, correct_pronunciation
