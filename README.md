@@ -37,6 +37,13 @@ Setup DeepSpeech in `Scooby/scooby_backend/STT_models`.
 cd STT_models
 sh download.sh
 ```
+Setup GoogleCredentials to use Google APIs.
+```
+Run this command in your terminal
+export GOOGLE_APPLICATION_CREDENTIALS="[PATH]"
+e.g. export GOOGLE_APPLICATION_CREDENTIALS="/home/user/Downloads/service-account-file.json"
+The json credentials files will be provided privately.
+```
 
 Run the server in `Scooby/scooby_backend`.
 ```
