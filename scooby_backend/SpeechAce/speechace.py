@@ -64,7 +64,15 @@ class SpeechAce():
         else:
             grade = "F"
 
-        return grade
+        fluency = response_json["text_score"]["fluency"]["overall_metrics"]
+        syllable_count = fluency["syllable_count"]
+        correct_syllable_count = fluency["correct_syllable_count"]
+        word_count = fluency["word_count"]
+        correct_word_count = fluency["correct_word_count"]
+        ielts_estimate = fluency["ielts_estimate"]
+        pte_estimate = fluency["pte_estimate"]
+
+        return grade, syllable_count, correct_syllable_count, word_count, correct_word_count, ielts_estimate, pte_estimate
 
 
     def validate_text(self):

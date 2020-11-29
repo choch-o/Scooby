@@ -1,8 +1,9 @@
 import React from 'react';
 import {connect} from 'react-redux'
 import { } from '../Redux/actions.js'
-import {Box, Button, Text, Grid, Heading, Collapsible} from 'grommet'
+import {Box, Button, Text, Grid, Heading, Collapsible, Image} from 'grommet'
 import { PlayFill } from 'grommet-icons'
+const scooby = './Scooby.png'
 
 class Practice extends React.Component {
     state = {
@@ -64,80 +65,127 @@ class Practice extends React.Component {
         return {"colored_sentence" : ret_str}
     }
 
-    findSubstrings = (cp, pt) => {
-        let answer = ""
-        let anslist = []
-        for (let i = 0; i < cp.length; i++) {
-            let match = ""
-            for (let j = 0; j < pt.length; j++) {
-                if ((i + j < cp.length) && cp[i + j] == pt[j]) {
-                    match += pt[j]
-                } else { // if (match.length > answer.length)
-                    answer = match
-                    if ((answer !== '') && (answer.length > 1)) {
-                        anslist.push(answer)
-                    }
-                    match = ""
-                }
-            }
-            if (match !== "") {
-                anslist.push(match)
-            }
-        }
-
-        console.log("Substrings: ")
-        console.log(anslist)
-    }
-
     comparePronunciation = (cp, pt) => {
-
-        this.findSubstrings(cp, pt)
-        // cp = "hhaw mahch taym duw yuw spehnd aan riydihng ah peyper";/*
-        // pt = "hhaw mahs taym hhuw ihih spehn aan riydihng ah perper";*/
 
         let cp_text = "";
         let pt_text = "";
+
+        let cp_matches = new Set()
+        let pt_matches = new Set()
 
         let i = 0;
         let j = 0;
 
         while (j < pt.length) {
             if (cp[i] === pt[j]) {
-                cp_text += cp[i]
-                pt_text += pt[j]
+                cp_matches.add(i)
+                pt_matches.add(j)
+                // cp_text += cp[i]
+                // pt_text += pt[j]
                 i++;
                 j++;
             } else {
                 if (pt[j] === " ") {
                     while (cp[i] !== " ") {
-                        cp_text += "<span style=\"color:red;\">"+cp[i]+"</span>";
+                        // cp_text += "<span style=\"color:red;\">"+cp[i]+"</span>";
                         i++;
                     }
-                    cp_text += cp[i];
-                    pt_text += pt[j];
+                    cp_matches.add(i)
+                    pt_matches.add(j)
+                    // cp_text += cp[i];
+                    // pt_text += pt[j];
                     i++;
                     j++;
                 } else if (cp[i] === " ") {
                     while (pt[j] !== " ") {
-                        pt_text += "<span style=\"color:red;\">"+pt[i]+"</span>";
+                        // pt_text += "<span style=\"color:red;\">"+pt[i]+"</span>";
                         j++;
                     }
-                    cp_text += cp[i];
-                    pt_text += pt[j];
+                    cp_matches.add(i)
+                    pt_matches.add(j)
+                    // cp_text += cp[i];
+                    // pt_text += pt[j];
                     i++;
                     j++;
                 }
 
                 else {
-                    cp_text += "<span style=\"color:red;\">"+cp[i]+"</span>";
-                    pt_text += "<span style=\"color:red;\">"+pt[j]+"</span>";
+                    // cp_text += "<span style=\"color:red;\">"+cp[i]+"</span>";
+                    // pt_text += "<span style=\"color:red;\">"+pt[j]+"</span>";
                     i++;
                     j++;
                 }
             }
         }
 
+        i = cp.length;
+        j = pt.length;
+
+        while (j >= 0) {
+            if (cp[i] === pt[j]) {
+                cp_matches.add(i)
+                pt_matches.add(j)
+                // cp_text += cp[i]
+                // pt_text += pt[j]
+                i--;
+                j--;
+            } else {
+                if (pt[j] === " ") {
+                    while (cp[i] !== " ") {
+                        // cp_text += "<span style=\"color:red;\">"+cp[i]+"</span>";
+                        i--;
+                    }
+                    cp_matches.add(i)
+                    pt_matches.add(j)
+                    // cp_text += cp[i];
+                    // pt_text += pt[j];
+                    i--;
+                    j--;
+                } else if (cp[i] === " ") {
+                    while (pt[j] !== " ") {
+                        // pt_text += "<span style=\"color:red;\">"+pt[i]+"</span>";
+                        j--;
+                    }
+                    cp_matches.add(i)
+                    pt_matches.add(j)
+                    // cp_text += cp[i];
+                    // pt_text += pt[j];
+                    i--;
+                    j--;
+                }
+
+                else {
+                    // cp_text += "<span style=\"color:red;\">"+cp[i]+"</span>";
+                    // pt_text += "<span style=\"color:red;\">"+pt[j]+"</span>";
+                    i--;
+                    j--;
+                }
+            }
+        }
+        
+        
+        for (let j = 0; j < cp.length; j++) {
+            if (cp_matches.has(j)) {
+                cp_text += cp[j];
+            } else {
+                cp_text += "<span style=\"color:red;\">"+cp[j]+"</span>";
+            }
+        }
+
+        for (let j = 0; j < pt.length; j++) {
+            if (pt_matches.has(j)) {
+                pt_text += pt[j];
+            } else {
+                pt_text += "<span style=\"color:red;\">"+pt[j]+"</span>";
+            }
+        }
+
         return {"cp_text": cp_text, "pt_text": pt_text}
+    }
+
+    displayGrade = (speechace_grade) => {
+        let str_ = "Grade: " + speechace_grade;
+        return {"grade": str_}
     }
 
     playAudio = (tts_result) => {
@@ -156,6 +204,12 @@ class Practice extends React.Component {
         const tts_result = this.props.tts_result
         const orig_audio = this.props.orig_audio
         const google_stt_result = this.props.google_stt_result
+        const syllable_count = this.props.syllable_count
+        const correct_syllable_count = this.props.correct_syllable_count
+        const word_count = this.props.word_count
+        const correct_word_count = this.props.correct_word_count
+        const ielts_estimate = this.props.ielts_estimate
+        const pte_estimate = this.props.pte_estimate
         const top_border = { "color": "border", "size": "medium", "style": "dashed", "side": "bottom" }
         // const styles = StyleSheet.create({
         //     bold: {fontWeight: 'bold'},
@@ -165,8 +219,8 @@ class Practice extends React.Component {
         
         return (
             <Box>
-                <Box fill direction="row">
-                    <Box fill="horizontal" gridArea="result_speechace" round="medium" pad="medium" margin="small"
+                <Box fill direction="row" margin="small">
+                    <Box fill="horizontal" gridArea="result_speechace" round="medium" pad="medium" margin="small" width="large"
                         alignSelf="center" background="light-1">
                         <Text weight="bold">Grade: {speechace_score}</Text>
                         <div
@@ -182,43 +236,71 @@ class Practice extends React.Component {
                             <tr><td><Text weight="bold">Yours: </Text></td><td><div
                                 dangerouslySetInnerHTML={{__html: this.comparePronunciation(correct_pronunciation, phonetic_transcription).pt_text }} /></td></tr>
                         </table>
+
+                        <Box direction="row" gridArea="result_test" round="medium" pad="medium" margin="small"
+                            alignSelf="center" background="light-1">
+                            <Box width="200px" margin="xsmall"><Button primary label="Correct Pronunciation" icon={<PlayFill/>} onClick={() => this.playAudio(tts_result)} /></Box>
+                            <Box width="200px" margin="xsmall"><Button primary label="My Pronunciation" icon={<PlayFill/>} onClick={() => this.playAudio(orig_audio)} /></Box>
+                        </Box>
+                        
+                        <Box direction="column">
+                            <Text weight="bold">To Scooby it could sound like...</Text>
+                            {/* <Box height="small" width="small"><Image fit="cover" src={scooby}/></Box> */}
+                            <Text>"{google_stt_result}"</Text>
+                        </Box>
                         </Collapsible>
                     </Box>
-                    <Box gridArea="score_speechace" alignSelf="center">
-                        <Heading level="3" alignSelf="center">{speechace_score}</Heading>
-                        <Button margin="medium"
-                                primary label="What does the grade mean?"
-                                onClick={(e)=>this.switchCollapsible(3)}
-                        />
-                        <Collapsible direction='vertical' open={this.state.grade_meaning_open}>
-                        <Text>
-                            We measure the accuracy and intelligibility of the pronunciation of a sentence, word, syllable, a
-                        </Text>
+                    <Box gridArea="score_speechace" alignSelf="center" direction="column" width="45%">
+                        <Box>
+                            <Button margin="medium"
+                                    primary label="What does the grade mean?"
+                                    onClick={(e)=>this.switchCollapsible(3)}
+                            />
+                            <Collapsible direction='vertical' open={this.state.grade_meaning}>
+                            <Text margin={{"horizontal": "medium"}}>
+                                From your pronunciation of a sentence, word, syllable, or phoneme, the accuracy and intelligibility
+                                of the overall pronunciation is measured on a scale of 0 to 100. 
+                            </Text>
+                            <Box margin={{"horizontal": "medium"}}>
+                            <table>
+                            <tr><td>A: Excellent. Native or native-like</td></tr>
+                            <tr><td>B: Very good and clearly intelligible</td></tr>
+                            <tr><td>C: Good. Intelligible but with one or two evident mistakes.</td></tr>
+                            <tr><td>D: Fair. Possibly not intelligible with several evident mistakes.</td></tr>
+                            <tr><td>F: Poor and must be reattempted.</td></tr>
+                            </table> 
+                            </Box>
                         </Collapsible>
+                        </Box>
+                        <Box>
                         <Button margin="medium"
                                 primary label="Why am I getting this result?"
                                 onClick={(e)=>this.switchCollapsible(4)}
                         />
-                        <Collapsible direction='vertical' open={this.state.grade_reason_open}>
-                        Explanations
+                        <Collapsible direction='vertical' open={this.state.grade_reason}>
+                        <Text margin={{"horizontal": "medium"}}>We count the number of correctly spoken words and syllables to grade your speech. 
+                              Among {word_count} words, you pronounced {correct_word_count} words right.
+                              Among {syllable_count} syllables, you pronounced {correct_syllable_count} words right.
+                        </Text>
                         </Collapsible>
+                        </Box>
+                        <Box>
                         <Button margin="medium"
                                 primary label="Get more evaluation"
                                 onClick={(e)=>this.switchCollapsible(5)}
                         />
-                        <Collapsible direction='vertical' open={this.state.grade_more_open}>
-                        Explanations
+                        <Collapsible direction='vertical' open={this.state.grade_more}>
+                            <Box margin={{"horizontal": "medium"}}>
+                            <table>
+                            <tr><td>Your estimated IELTS speaking score is: {ielts_estimate}. For more information. please visit:
+                                    <a href="https://www.ielts.com/results/scores/speaking" class="active">IELTS Score Description</a></td></tr>
+                            <tr><td>Your estimated PTE speech score is: {pte_estimate}. For more information, please visit 
+                                    <a href="https://pearsonpte.com/wp-content/uploads/2020/06/Score-Guide-21.05.20-for-test-takers.pdf" class="active">PTE Score Description</a></td></tr>
+                            </table> 
+                        </Box>
                         </Collapsible>
+                        </Box>
                     </Box>
-                </Box>
-                <Box gridArea="result_test" round="medium" pad="medium" margin="small"
-                     alignSelf="center" background="light-1">
-                    <Button fill="false" primary label="Correct Pronunciation" icon={<PlayFill/>} onClick={() => this.playAudio(tts_result)} />
-                    <Button fill="false" primary label="My Pronunciation" icon={<PlayFill/>} onClick={() => this.playAudio(orig_audio)} />
-                    <Text>{google_stt_result}</Text>
-                </Box>
-                <Box gridArea="score_test" alignSelf="center">
-                    <Heading level="3" alignSelf="center">{speechace_score}</Heading>
                 </Box>
             </Box>
         );
@@ -236,6 +318,12 @@ const mapStateToProps = (state) => ({
     tts_result: state.tts_result,
     orig_audio: state.orig_audio,
     google_stt_result: state.google_stt_result,
+    syllable_count: state.syllable_count,
+    correct_syllable_count: state.correct_syllable_count,
+    word_count: state.word_count,
+    correct_word_count: state.correct_word_count,
+    ielts_estimate: state.ielts_estimate,
+    pte_estimate: state.pte_estimate
 })
 
 const mapDispatchToProps = {}
