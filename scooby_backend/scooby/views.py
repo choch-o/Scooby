@@ -41,10 +41,14 @@ def handle_uploaded_file(raw_audio, script):
     # https://docs.djangoproject.com/en/3.1/ref/files/uploads/#django.core.files.uploadedfile.UploadedFile
     # TODO: Transcribe
     # Make this function in a separate file if needed
-
-    with open('myfile.wav', mode='bw') as f:
+    audio_string = (str(raw_audio))
+    
+    # print(raw_audio.read())
+    
+    with open("myfile." + audio_string.split('.')[1], mode='bw') as f:
         orig_audio = raw_audio.read()
         f.write(orig_audio)
+    stt.mp3m4a_to_wav("myfile." + audio_string.split('.')[1])
     # stt_result = stt.MozillaSTT('myfile.wav')
     tts_path, response_audio = stt.google_tts(script)
     response = stt.google_transcribe('myfile.wav')
