@@ -52,6 +52,7 @@ class SpeechAce():
         response = requests.request("POST", url, headers=headers, data=payload, files=files)
         response_json = response.json()
         score = response_json["text_score"]["quality_score"]
+        grade = "default"
         if score >= 90:
             grade = "A"
         elif score >= 80 and score < 90:

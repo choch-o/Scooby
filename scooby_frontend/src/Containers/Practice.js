@@ -31,6 +31,8 @@ class Practice extends React.Component {
     colorText = (user_text, is_correct) => {
         // user_text When practicing the pronunciation, we should also let users effectively do it through interactions with AI.
         // is_correct "1010111110111011"
+        console.log(user_text);
+        console.log(is_correct);
         // "<span style=\"color:red;\">"+cp[i]+"</span>";
         let ret_str = "";
         let word_buf = "";
@@ -53,6 +55,7 @@ class Practice extends React.Component {
             i++;
         }
         // put the last word
+        ret_str += " ";
         if (is_correct[word_index] === "0") { // if wrong set the color red
             ret_str += "<span style=\"color:red;\">" + word_buf + "</span>";
         } else { // if right color black
@@ -61,8 +64,34 @@ class Practice extends React.Component {
         return {"colored_sentence" : ret_str}
     }
 
+    findSubstrings = (cp, pt) => {
+        let answer = ""
+        let anslist = []
+        for (let i = 0; i < cp.length; i++) {
+            let match = ""
+            for (let j = 0; j < pt.length; j++) {
+                if ((i + j < cp.length) && cp[i + j] == pt[j]) {
+                    match += pt[j]
+                } else { // if (match.length > answer.length)
+                    answer = match
+                    if ((answer !== '') && (answer.length > 1)) {
+                        anslist.push(answer)
+                    }
+                    match = ""
+                }
+            }
+            if (match !== "") {
+                anslist.push(match)
+            }
+        }
+
+        console.log("Substrings: ")
+        console.log(anslist)
+    }
+
     comparePronunciation = (cp, pt) => {
 
+        this.findSubstrings(cp, pt)
         // cp = "hhaw mahch taym duw yuw spehnd aan riydihng ah peyper";/*
         // pt = "hhaw mahs taym hhuw ihih spehn aan riydihng ah perper";*/
 
@@ -135,144 +164,63 @@ class Practice extends React.Component {
         // })
         
         return (
-            <Grid
-                fill
-                rows={['xsmall', 0, 'flex', 0, 'flex']}
-                columns={['small','flex','small']}
-                gap="small"
-                pad="medium"
-                areas={[
-                    { name: 'column_name', start: [0, 0], end: [0, 0]},
-                    { name: 'column_results', start: [1, 0], end: [1, 0]},
-                    { name: 'column_scores', start: [2, 0], end: [2, 0]},
-                    { name: 'name_deepspeech', start: [0, 1], end: [0, 1]},
-                    { name: 'name_speechace', start: [0, 2], end: [0, 2]},
-                    { name: 'name_google', start: [0, 3], end: [0, 3]},
-                    { name: 'name_test', start: [0, 4], end: [0, 4]},
-                    { name: 'result_deepspeech', start: [1, 1], end: [1, 1]},
-                    { name: 'result_speechace', start: [1, 2], end: [1, 2]},
-                    { name: 'result_google', start: [1, 3], end: [1, 3]},
-                    { name: 'result_test', start: [1, 4], end: [1, 4]},
-                    { name: 'score_deepspeech', start: [2, 1], end: [2, 1]},
-                    { name: 'score_speechace', start: [2, 2], end: [2, 2]},
-                    { name: 'score_google', start: [2, 3], end: [2, 3]},
-                    { name: 'score_test', start:[2, 4], end: [2, 4]}
-                ]}
-            >
-                <Box gridArea="column_name" alignSelf="center" border={top_border} margin="small">
-                    <Heading level="4" margin="medium" alignSelf="center">Index</Heading>
+            <Box>
+                <Box fill direction="row">
+                    <Box fill="horizontal" gridArea="result_speechace" round="medium" pad="medium" margin="small"
+                        alignSelf="center" background="light-1">
+                        <Text weight="bold">Grade: {speechace_score}</Text>
+                        <div
+                            dangerouslySetInnerHTML={{__html: this.colorText(user_text, is_correct).colored_sentence}} />
+                        <Button margin="medium"
+                                primary label="Why this result?"
+                                onClick={(e)=>this.switchCollapsible(1)}
+                        />
+                        <Collapsible direction='vertical' open={this.state.speechace_open}>
+                        <table>
+                            <tr><td><Text weight="bold">Correct: </Text></td><td><div
+                                dangerouslySetInnerHTML={{__html: this.comparePronunciation(correct_pronunciation, phonetic_transcription).cp_text }} /></td></tr>
+                            <tr><td><Text weight="bold">Yours: </Text></td><td><div
+                                dangerouslySetInnerHTML={{__html: this.comparePronunciation(correct_pronunciation, phonetic_transcription).pt_text }} /></td></tr>
+                        </table>
+                        </Collapsible>
+                    </Box>
+                    <Box gridArea="score_speechace" alignSelf="center">
+                        <Heading level="3" alignSelf="center">{speechace_score}</Heading>
+                        <Button margin="medium"
+                                primary label="What does the grade mean?"
+                                onClick={(e)=>this.switchCollapsible(3)}
+                        />
+                        <Collapsible direction='vertical' open={this.state.grade_meaning_open}>
+                        <Text>
+                            We measure the accuracy and intelligibility of the pronunciation of a sentence, word, syllable, a
+                        </Text>
+                        </Collapsible>
+                        <Button margin="medium"
+                                primary label="Why am I getting this result?"
+                                onClick={(e)=>this.switchCollapsible(4)}
+                        />
+                        <Collapsible direction='vertical' open={this.state.grade_reason_open}>
+                        Explanations
+                        </Collapsible>
+                        <Button margin="medium"
+                                primary label="Get more evaluation"
+                                onClick={(e)=>this.switchCollapsible(5)}
+                        />
+                        <Collapsible direction='vertical' open={this.state.grade_more_open}>
+                        Explanations
+                        </Collapsible>
+                    </Box>
                 </Box>
-                <Box gridArea="column_results" alignSelf="center" border={top_border} margin="small">
-                    <Heading level="4" margin="medium" alignSelf="center">Results</Heading>
-                </Box>
-                <Box gridArea="column_scores" alignSelf="center" border={top_border} margin="small">
-                    <Heading level="4" margin="medium" alignSelf="center">Scores</Heading>
-                </Box>
-
-                {/*DeepSpeech*/}
-                {/* <Box gridArea="name_deepspeech" alignSelf="center">
-                    <Heading level="3" margin="medium" alignSelf="center">DeepSpeech</Heading>
-                </Box>
-                <Box gridArea="result_deepspeech" round="medium" pad="medium" margin="small"
-                     alignSelf="center" background="light-1">
-                    <Text>{stt_result}</Text>
-                    <Button margin="medium"
-                            primary label="Why this result?"
-                            onClick={(e)=>this.switchCollapsible(0)}
-                    />
-                    <Collapsible
-                        direction='vertical'
-                        open={this.state.deepspeech_open}
-                    >
-					Explanations
-                    </Collapsible>
-                </Box>
-                <Box gridArea="score_deepspeech" alignSelf="center">
-                    <Heading level="3" alignSelf="center">A</Heading>
-                </Box> */}
-
-                {/*SpeechAce*/}
-                <Box gridArea="name_speechace" alignSelf="center">
-                    <Heading level="3" margin="medium" alignSelf="center">Scooby</Heading>
-                </Box>
-                <Box gridArea="result_speechace" round="medium" pad="medium" margin="small"
-                     alignSelf="center" background="light-1">
-                    <div
-                        dangerouslySetInnerHTML={{__html: this.colorText(user_text, is_correct).colored_sentence}} />
-                    <Button margin="medium"
-                            primary label="Why this result?"
-                            onClick={(e)=>this.switchCollapsible(1)}
-                    />
-                    <Collapsible direction='vertical' open={this.state.speechace_open}>
-					<table>
-                        <tr><td><Text weight="bold">Correct: </Text></td><td><div
-                            dangerouslySetInnerHTML={{__html: this.comparePronunciation(correct_pronunciation, phonetic_transcription).cp_text }} /></td></tr>
-                        <tr><td><Text weight="bold">Yours: </Text></td><td><div
-                            dangerouslySetInnerHTML={{__html: this.comparePronunciation(correct_pronunciation, phonetic_transcription).pt_text }} /></td></tr>
-                    </table>
-                    </Collapsible>
-                </Box>
-                <Box gridArea="score_speechace" alignSelf="center">
-                    <Heading level="3" alignSelf="center">A</Heading>
-                    <Button margin="medium"
-                            primary label="What does the grade mean?"
-                            onClick={(e)=>this.switchCollapsible(3)}
-                    />
-                    <Collapsible direction='vertical' open={this.state.grade_meaning_open}>
-					Explanations
-                    </Collapsible>
-                    <Button margin="medium"
-                            primary label="Why am I getting this result?"
-                            onClick={(e)=>this.switchCollapsible(4)}
-                    />
-                    <Collapsible direction='vertical' open={this.state.grade_reason_open}>
-					Explanations
-                    </Collapsible>
-                    <Button margin="medium"
-                            primary label="Get more evaluation"
-                            onClick={(e)=>this.switchCollapsible(5)}
-                    />
-                    <Collapsible direction='vertical' open={this.state.grade_more_open}>
-					Explanations
-                    </Collapsible>
-                </Box>
-                {/*Google*/}
-                {/* <Box gridArea="name_google" alignSelf="center">
-                    <Heading level="3" margin="medium" alignSelf="center">Google</Heading>
-                </Box>
-                <Box gridArea="result_google" round="medium" pad="medium" margin="small"
-                     alignSelf="center" background="light-1">
-                    <Text>{google_result}</Text>
-                    <Button margin="medium"
-                            primary label="Why this result?"
-                            onClick={(e)=>this.switchCollapsible(2)}
-                    />
-                    <Collapsible
-                        direction='vertical'
-                        open={this.state.google_open}
-                    >
-					Explanations
-                    </Collapsible>
-                </Box>
-                <Box gridArea="score_google" alignSelf="center">
-                    <Heading level="3" alignSelf="center">A</Heading>
-                </Box> */}
-
-                {/*test*/}
-                {/*Google*/}
-                <Box gridArea="name_test" alignSelf="center">
-                    <Heading level="3" margin="medium" alignSelf="center">Your Recordings</Heading>
-                </Box>
-                <Box fill="false" gridArea="result_test" round="medium" pad="medium" margin="small"
+                <Box gridArea="result_test" round="medium" pad="medium" margin="small"
                      alignSelf="center" background="light-1">
                     <Button fill="false" primary label="Correct Pronunciation" icon={<PlayFill/>} onClick={() => this.playAudio(tts_result)} />
                     <Button fill="false" primary label="My Pronunciation" icon={<PlayFill/>} onClick={() => this.playAudio(orig_audio)} />
                     <Text>{google_stt_result}</Text>
                 </Box>
                 <Box gridArea="score_test" alignSelf="center">
-                    <Heading level="3" alignSelf="center">A</Heading>
+                    <Heading level="3" alignSelf="center">{speechace_score}</Heading>
                 </Box>
-            </Grid>
+            </Box>
         );
     }
 }

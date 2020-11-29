@@ -27,12 +27,14 @@ class FileUploadView(APIView):
         print(request.data)
         file_obj = request.data['file']
         script = request.data['script']
-        stt_result, phonetic_transcription, correct_pronunciation, speechace_score, tts_result, orig_audio, google_stt_result \
+        stt_result, user_text, phonetic_transcription, correct_pronunciation, is_correct, speechace_score, tts_result, orig_audio, google_stt_result \
          = handle_uploaded_file(file_obj, script)
         # print("Put response :" + stt_result)
         return Response(data={"stt_result": stt_result, 
+        "user_text": user_text, \
         "phonetic_transcription": phonetic_transcription, \
         "correct_pronunciation": correct_pronunciation, \
+        "is_correct": is_correct, \
         "tts_result": base64.b64encode(tts_result), \
         "orig_audio": base64.b64encode(orig_audio), \
         "google_stt_result": google_stt_result,
@@ -49,8 +51,7 @@ def handle_uploaded_file(raw_audio, script):
         f.write(orig_audio)
     # stt_result = stt.MozillaSTT('myfile.wav')
     tts_path, response_audio = stt.google_tts(script)
-    response = stt.google_transcribe('myfile.wav')
-    google_stt_result = response
+    response, google_stt_result = stt.google_transcribe('myfile.wav')
     # stt.play_audio_pydub(tts_path)
     # stt.play_audio_pydub('myfile.wav')
 
