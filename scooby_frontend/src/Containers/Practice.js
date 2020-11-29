@@ -4,6 +4,61 @@ import { } from '../Redux/actions.js'
 import {Box, Text, Grid, Heading} from 'grommet'
 
 class Practice extends React.Component {
+    comparePronunciation = (cp, pt) => {
+
+        // cp = "hhaw mahch taym duw yuw spehnd aan riydihng ah peyper";/*
+        // pt = "hhaw mahs taym hhuw ihih spehn aan riydihng ah perper";*/
+
+        let cp_text = "";
+        let pt_text = "";
+
+        let i = 0;
+        let j = 0;
+
+        while (j < pt.length) {
+            if (cp[i] === pt[j]) {
+                cp_text += cp[i]
+                pt_text += pt[j]
+                i++;
+                j++;
+            } else {
+                console.log(cp[i], pt[j])
+                console.log(cp_text, pt_text)
+                if (pt[j] === " ") {
+                    while (cp[i] !== " ") {
+                        cp_text += "<span style=\"color:red;\">"+cp[i]+"</span>";
+                        i++;
+                    }
+                    cp_text += cp[i];
+                    pt_text += pt[j];
+                    i++;
+                    j++;
+                } else if (cp[i] === " ") {
+                    while (pt[j] !== " ") {
+                        pt_text += "<span style=\"color:red;\">"+pt[i]+"</span>";
+                        j++;
+                    }
+                    cp_text += cp[i];
+                    pt_text += pt[j];
+                    i++;
+                    j++;
+                }
+
+                else {
+                    cp_text += "<span style=\"color:red;\">"+cp[i]+"</span>";
+                    pt_text += "<span style=\"color:red;\">"+pt[j]+"</span>";
+                    i++;
+                    j++;
+                }
+            }
+        }
+
+        console.log(cp_text)
+        console.log(pt_text)
+
+        return {"cp_text": cp_text, "pt_text": pt_text}
+    }
+
     render() {
         const stt_result = this.props.stt_result
         const correct_pronunciation = this.props.correct_pronunciation
@@ -62,8 +117,10 @@ class Practice extends React.Component {
                 <Box gridArea="result_speechace" round="medium" pad="medium" margin="small"
                      alignSelf="center" background="light-1">
                     <table>
-                        <tr><td><Text weight="bold">Correct: </Text></td><td>{correct_pronunciation}</td></tr>
-                        <tr><td><Text weight="bold">Yours: </Text></td><td>{phonetic_transcription}</td></tr>
+                        <tr><td><Text weight="bold">Correct: </Text></td><td><div
+                            dangerouslySetInnerHTML={{__html: this.comparePronunciation(correct_pronunciation, phonetic_transcription).cp_text }} /></td></tr>
+                        <tr><td><Text weight="bold">Yours: </Text></td><td><div
+                            dangerouslySetInnerHTML={{__html: this.comparePronunciation(correct_pronunciation, phonetic_transcription).pt_text }} /></td></tr>
                     </table>
                 </Box>
                 <Box gridArea="score_speechace" alignSelf="center">
