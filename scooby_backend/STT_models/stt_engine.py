@@ -13,8 +13,8 @@ import soundfile as sf
 import os
 # Import libraries
 from pydub import AudioSegment
-from pydub.playback import play
-import simpleaudio as sa
+# from pydub.playback import play
+# import simpleaudio as sa
 
 from google.cloud import speech_v1p1beta1 as speech
 from google.cloud import texttospeech
@@ -281,22 +281,22 @@ def script_converter(raw_script):
     return raw_script_list_processed, raw_script_list
 
 
-def play_audio(audio_path):
+# def play_audio(audio_path):
+#
+#     # filename = 'myfile.wav'
+#     wave_obj = sa.WaveObject.from_wave_file(audio_path)
+#     play_obj = wave_obj.play()
+#     play_obj.wait_done()  # Wait until sound has finished playing
 
-    # filename = 'myfile.wav'
-    wave_obj = sa.WaveObject.from_wave_file(audio_path)
-    play_obj = wave_obj.play()
-    play_obj.wait_done()  # Wait until sound has finished playing
 
-
-def play_audio_pydub(audio_path):
-
-    # filename = 'myfile.wav'
-    sound = AudioSegment.from_file(audio_path)
-    play(sound)
-    # wave_obj = sa.WaveObject.from_wave_file(audio_path)
-    # play_obj = wave_obj.play()
-    # play_obj.wait_done()  # Wait until sound has finished playing
+# def play_audio_pydub(audio_path):
+#
+#     # filename = 'myfile.wav'
+#     sound = AudioSegment.from_file(audio_path)
+#     play(sound)
+#     # wave_obj = sa.WaveObject.from_wave_file(audio_path)
+#     # play_obj = wave_obj.play()
+#     # play_obj.wait_done()  # Wait until sound has finished playing
 
 
 def google_tts(raw_script):
@@ -317,8 +317,8 @@ def google_tts(raw_script):
     filename = "tts_myfile.wav"
     with open(filename, "wb") as out:
         out.write(response.audio_content)
-    return filename
+    return filename, response.audio_content
 
 
-if __name__ == "__main__":
-    play_audio(sys.argv[1])
+# if __name__ == "__main__":
+#     play_audio(sys.argv[1])
