@@ -244,9 +244,17 @@ class Practice extends React.Component {
                         </Box>
                         
                         <Box direction="column">
-                            <Text weight="bold">To Scooby it could sound like...</Text>
+                            <Text weight="bold">If Scooby heard your speech without the script, he might understand it as...</Text>
                             {/* <Box height="small" width="small"><Image fit="cover" src={scooby}/></Box> */}
                             <Text>"{google_stt_result}"</Text>
+                            <Button margin="medium"
+                                primary label="So what?"
+                                onClick={(e)=>this.switchCollapsible(0)}
+                            />
+                            <Collapsible direction='vertical' open={this.state.deepspeech_open}>
+                            <Text>If you want to speak even more clearly, you might practice until Scooby will understand without the script!</Text>
+                            </Collapsible>
+
                         </Box>
                         </Collapsible>
                     </Box>
@@ -292,9 +300,9 @@ class Practice extends React.Component {
                         <Collapsible direction='vertical' open={this.state.grade_more}>
                             <Box margin={{"horizontal": "medium"}}>
                             <table>
-                            <tr><td>Your estimated IELTS speaking score is: {ielts_estimate}. For more information. please visit:
+                            <tr><td>Your estimated IELTS speaking score is: {ielts_estimate}. For more information. please visit: 
                                     <a href="https://www.ielts.com/results/scores/speaking" class="active">IELTS Score Description</a></td></tr>
-                            <tr><td>Your estimated PTE speech score is: {pte_estimate}. For more information, please visit 
+                            <tr><td>Your estimated PTE speech score is: {pte_estimate}. For more information, please visit: 
                                     <a href="https://pearsonpte.com/wp-content/uploads/2020/06/Score-Guide-21.05.20-for-test-takers.pdf" class="active">PTE Score Description</a></td></tr>
                             </table> 
                         </Box>
