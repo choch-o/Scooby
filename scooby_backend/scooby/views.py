@@ -7,7 +7,7 @@ from rest_framework.response import Response
 from rest_framework.parsers import FileUploadParser
 from .models import Post
 from .serializers import PostSerializer
-from STT_models.stt_engine import MozillaSTT
+import STT_models.stt_engine as stt
 from SpeechAce.speechace import SpeechAce
 import os
 import scipy.io.wavfile
@@ -39,8 +39,11 @@ def handle_uploaded_file(raw_audio, script):
 
     with open('myfile.wav', mode='bw') as f:
         f.write(raw_audio.read())
-#     stt_result = MozillaSTT('myfile.wav')
-    stt_result = "placeholder"
+    # stt_result = stt.MozillaSTT('myfile.wav')
+
+    response = stt.google_transcribe('myfile.wav')
+     
+    stt_result = stt.simple_word_scorer(stt.script_converter(script), response) 
     phonetic_transcription, correct_pronunciation = SpeechAce(user_text=script, user_file='myfile.wav').score_pronunciation()
 #     speechace_result = SpeechAce(user_text=script, user_file='myfile.wav').score_phoneme_list()
-    return stt_result, phonetic_transcription, correct_pronunciation
+    return stt_result[0], phonetic_transcription, correct_pronunciation

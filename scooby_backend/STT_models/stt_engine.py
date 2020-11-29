@@ -11,11 +11,31 @@ from timeit import default_timer as timer
 import io
 import soundfile as sf
 import os
+# Import libraries
+from pydub import AudioSegment
+from google.cloud import speech_v1p1beta1 as speech
+# from google.cloud import speech
 try:
     from shhlex import quote
 except ImportError:
     from pipes import quote
 
+def mp3_to_wav(audio_file_name):
+    if audio_file_name.split('.')[1] == 'mp3':    
+        sound = AudioSegment.from_mp3(audio_file_name)
+        audio_file_name = audio_file_name.split('.')[0] + '.wav'
+        sound.export(audio_file_name, format="wav")
+
+def frame_rate_channel(audio_file_name):
+    with wave.open(audio_file_name, "rb") as wave_file:
+        frame_rate = wave_file.getframerate()
+        channels = wave_file.getnchannels()
+        return frame_rate,channels
+
+def stereo_to_mono(audio_file_name):
+    sound = AudioSegment.from_wav(audio_file_name)
+    sound = sound.set_channels(1)
+    sound.export(audio_file_name, format="wav")
 
 model_file_path = os.path.join(".", "STT_models", 'deepspeech-0.8.1-models.pbmm')
 scorer_file_path = os.path.join(".", "STT_models", 'deepspeech-0.8.1-models.scorer')
@@ -111,10 +131,132 @@ Resampling might produce erratic speech   recognition.'.format(fs_orig, desired_
     # print(metadata_json_output(ds.sttWithMetadata(audio, 3)))
     # print(ds.stt(audio))
     output += ds.stt(audio)
-    output += '\n'
-    output += metadata_json_output(ds.sttWithMetadata(audio, 3))
+    # output += '\n'
+    # output += metadata_json_output(ds.sttWithMetadata(audio, 3))
     return output
 
+def google_transcribe(audio_file_path):
+
+    file_name = audio_file_path
+    # mp3_to_wav(file_name)
+
+    # The name of the audio file to transcribe
+    frame_rate, channels = frame_rate_channel(file_name)
+
+    if channels > 1:
+        stereo_to_mono(file_name)
+
+
+    with io.open(file_name, "rb") as audio_file:
+        content = audio_file.read()
+
+    client = speech.SpeechClient()
+    audio = speech.RecognitionAudio(content = content)
+
+    config = speech.RecognitionConfig(encoding=speech.RecognitionConfig.AudioEncoding.LINEAR16,sample_rate_hertz=frame_rate,
+        language_code='en-US',
+        enable_word_confidence=True)
+    # config = speech.RecognitionConfig(encoding=speech.RecognitionConfig.AudioEncoding.LINEAR16,             sample_rate_hertz=frame_rate,
+    # language_code='en-US'
+    # )
+
+    # Detects speech in the audio file
+    response = client.recognize(config=config, audio=audio)
+    # print(response)
+
+    return response
+
+
+def simple_word_scorer(script, response):
+    detected_word_sequence = []
+    dummy_score = 0.0
+    detected_word_dict = dict()
+    for word in (response.results[0].alternatives[0].words):
+        detected_word_sequence.append((word.word, word.confidence))
+        dummy_score += word.confidence
+        if word.word in detected_word_dict.keys():
+            detected_word_dict[word.word].append(word.confidence)
+        else:
+            detected_word_dict[word.word] = [word.confidence]
+    dummy_score /= len(detected_word_sequence)
+    # word_checking_interval = 4
+    score = 0.0
+    counter = 0
+    taken_list,undetected_list = [], []
+    for w in detected_word_sequence:
+        taken_list.append([True, w])
+    for w in script[1]:
+        undetected_list.append([True, w])
+    # loop over sript
+    for j in range(len(script[0])):
+        script_word = script[0][j]
+        # loop over detected
+        # print("**", script_word)
+        for i in range(max(0, counter - 1),  min(counter + 2, len(detected_word_sequence))):
+            detected_word = detected_word_sequence[i][0]
+            # print("det_", detected_word)
+            if type(script_word) == list:
+                if detected_word in script_word  and taken_list[i]:
+                    taken_list[i][0] = False
+                    undetected_list[j][0] = False
+                    score += detected_word_sequence[i][1]
+                    break
+            else:
+                if script_word == detected_word and taken_list[i]:
+                    # print("!@#")
+                    undetected_list[j][0] = False
+                    taken_list[i][0] = False 
+                    score += detected_word_sequence[i][1]
+                    break
+        counter += 1
+
+    stt_result = ""
+    stt_result += str(dummy_score*100) + " " + str(100*score/len(script_word[0])) +"\n"
+    
+    for word in undetected_list:
+        stt_result += word[1].lower() + " " if word[0] else  word[1].capitalize() + " "
+    stt_result += "\n"
+    for word in taken_list:
+        if type(word) == list:
+            stt_result += word[1][0].lower() + " " if word[0] else  word[1][0].capitalize() + " "
+            
+        else:
+
+            stt_result += word[1].lower() + " " if word[0] else  word[1].capitalize() + " "
+    stt_result += "\n"
+    return stt_result, taken_list, undetected_list, 100*score/len(script_word[0]), dummy_score*100
+
+
+def script_converter(raw_script):
+    punctuation_signs = '.,:;!()?-"'
+    apostrophe = "'"
+    # hyphen = "-"
+    raw_script_copy = list(raw_script[:])
+
+    for i in range(len(raw_script_copy)):
+        if raw_script_copy[i] in punctuation_signs:
+            raw_script_copy[i] = ' '
+    raw_script_copy =  "".join(raw_script_copy)   
+
+    raw_script_list = raw_script_copy.strip().split()
+    raw_script_list_processed = []
+
+    for i in range(len(raw_script_list)):
+        if apostrophe in raw_script_list[i]:
+            if apostrophe == raw_script_list[i][-2] and raw_script_list[i][-1] == 's':
+                temp_word = raw_script_list[i][0:-2].lower()
+                raw_script_list_processed.append([temp_word, temp_word+"s", temp_word+"'s"])
+
+            elif apostrophe == raw_script_list[i][-1]:
+                temp_word = raw_script_list[i][0:-1].lower()
+                raw_script_list_processed.append([temp_word, temp_word+"'"])
+            else:
+                raw_script_list_processed.append(raw_script_list[i].replace("'",'').lower())
+
+        else:
+            raw_script_list_processed.append(raw_script_list[i].lower())
+    # print(raw_script_list_processed)
+    return raw_script_list_processed, raw_script_list
 
 # if __name__ == "__main__":
 #     MozillaSTT(wave.open(audio_path, 'rb'))
