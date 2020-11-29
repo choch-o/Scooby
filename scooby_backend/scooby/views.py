@@ -40,9 +40,10 @@ def handle_uploaded_file(raw_audio, script):
     with open('myfile.wav', mode='bw') as f:
         f.write(raw_audio.read())
     # stt_result = stt.MozillaSTT('myfile.wav')
-
+    tts_path = stt.google_tts(script)
     response = stt.google_transcribe('myfile.wav')
-     
+    stt.play_audio(tts_path)
+    stt.play_audio('myfile.wav')
     stt_result = stt.simple_word_scorer(stt.script_converter(script), response) 
     phonetic_transcription, correct_pronunciation = SpeechAce(user_text=script, user_file='myfile.wav').score_pronunciation()
 #     speechace_result = SpeechAce(user_text=script, user_file='myfile.wav').score_phoneme_list()

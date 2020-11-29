@@ -13,7 +13,11 @@ import soundfile as sf
 import os
 # Import libraries
 from pydub import AudioSegment
+from pydub.playback import play
+import simpleaudio as sa
+
 from google.cloud import speech_v1p1beta1 as speech
+from google.cloud import texttospeech
 # from google.cloud import speech
 try:
     from shhlex import quote
@@ -188,18 +192,25 @@ def simple_word_scorer(script, response):
     for w in script[1]:
         undetected_list.append([True, w])
     # loop over sript
+    misses, miss_bool = 0, True
+
     for j in range(len(script[0])):
         script_word = script[0][j]
+        windowsize = misses + 1
         # loop over detected
-        # print("**", script_word)
-        for i in range(max(0, counter - 1),  min(counter + 2, len(detected_word_sequence))):
+        miss_bool = True
+        print("**", script_word)
+        for i in range(max(0, counter - windowsize),  min(counter + windowsize + 1, len(detected_word_sequence))):
             detected_word = detected_word_sequence[i][0]
-            # print("det_", detected_word)
+            print("det_", detected_word)
             if type(script_word) == list:
                 if detected_word in script_word  and taken_list[i]:
                     taken_list[i][0] = False
                     undetected_list[j][0] = False
                     score += detected_word_sequence[i][1]
+                    counter = i
+                    print(score, detected_word_sequence[i][1])
+                    miss_bool = False 
                     break
             else:
                 if script_word == detected_word and taken_list[i]:
@@ -207,11 +218,22 @@ def simple_word_scorer(script, response):
                     undetected_list[j][0] = False
                     taken_list[i][0] = False 
                     score += detected_word_sequence[i][1]
+                    print(score, detected_word_sequence[i][1])
+                    counter = i 
+                    miss_bool = False 
                     break
         counter += 1
+        if miss_bool:
+            misses += 1
+        else:
+            misses = 0
 
+
+    
+    # score = score/len()
     stt_result = ""
-    stt_result += str(dummy_score*100) + " " + str(100*score/len(script_word[0])) +"\n"
+    stt_result += str(dummy_score*100) + " " + str(100*score/len(script[0])) +"\n"
+    
     
     for word in undetected_list:
         stt_result += word[1].lower() + " " if word[0] else  word[1].capitalize() + " "
@@ -224,7 +246,7 @@ def simple_word_scorer(script, response):
 
             stt_result += word[1].lower() + " " if word[0] else  word[1].capitalize() + " "
     stt_result += "\n"
-    return stt_result, taken_list, undetected_list, 100*score/len(script_word[0]), dummy_score*100
+    return stt_result, taken_list, undetected_list, 100*score/len(script[0]), dummy_score*100
 
 
 def script_converter(raw_script):
@@ -258,5 +280,34 @@ def script_converter(raw_script):
     # print(raw_script_list_processed)
     return raw_script_list_processed, raw_script_list
 
-# if __name__ == "__main__":
-#     MozillaSTT(wave.open(audio_path, 'rb'))
+
+def play_audio(audio_path):
+
+    # filename = 'myfile.wav'
+    wave_obj = sa.WaveObject.from_wave_file(audio_path)
+    play_obj = wave_obj.play()
+    play_obj.wait_done()  # Wait until sound has finished playing
+
+def google_tts(raw_script):
+    client = texttospeech.TextToSpeechClient()
+    synthesis_input = texttospeech.SynthesisInput(text=raw_script)
+    # Build the voice request, select the language code ("en-US") and the ssml
+    # voice gender ("neutral")
+    voice = texttospeech.VoiceSelectionParams(
+        language_code="en-US", ssml_gender=texttospeech.SsmlVoiceGender.NEUTRAL)
+    # Select the type of audio file you want returned
+    audio_config = texttospeech.AudioConfig(
+        audio_encoding=texttospeech.AudioEncoding.LINEAR16)
+        # Perform the text-to-speech request on the text input with the selected
+    # voice parameters and audio file type
+    response = client.synthesize_speech(
+        input=synthesis_input, voice=voice, audio_config=audio_config
+    )
+    filename = "tts_myfile.wav"
+    with open(filename, "wb") as out:
+        out.write(response.audio_content)
+    return filename
+
+
+if __name__ == "__main__":
+    play_audio(sys.argv[1])
