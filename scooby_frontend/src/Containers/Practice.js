@@ -2,6 +2,7 @@ import React from 'react';
 import {connect} from 'react-redux'
 import { } from '../Redux/actions.js'
 import {Box, Button, Text, Grid, Heading, Collapsible} from 'grommet'
+import { PlayFill } from 'grommet-icons'
 
 class Practice extends React.Component {
     state = {
@@ -13,20 +14,53 @@ class Practice extends React.Component {
         grade_more: false
     }
     switchCollapsible = (button_id) => {
-        if (button_id == 0) { // deepspeech
+        if (button_id === 0) { // deepspeech
     		this.setState({ deepspeech_open: this.state.deepspeech_open ? false : true });
-        } else if (button_id == 1) { // speechace
+        } else if (button_id === 1) { // speechace
             this.setState({ speechace_open: this.state.speechace_open ? false : true });
-        } else if (button_id == 2) { // google
+        } else if (button_id === 2) { // google
             this.setState({ google_open: this.state.google_open ? false : true });
-        } else if (button_id == 3) { // grade meaning
+        } else if (button_id === 3) { // grade meaning
             this.setState({ grade_meaning: this.state.grade_meaning ? false : true });
-        } else if (button_id == 4) { // why am I getting this result
+        } else if (button_id === 4) { // why am I getting this result
             this.setState({ grade_reason: this.state.grade_reason ? false : true });
-        } else if (button_id == 5) { // more grades
+        } else if (button_id === 5) { // more grades
             this.setState({ grade_more: this.state.grade_more ? false : true });
         }
-	}
+    }
+    colorText = (user_text, is_correct) => {
+        // user_text When practicing the pronunciation, we should also let users effectively do it through interactions with AI.
+        // is_correct "1010111110111011"
+        // "<span style=\"color:red;\">"+cp[i]+"</span>";
+        let ret_str = "";
+        let word_buf = "";
+        let word_index = 0;
+        let i = 0;
+
+        while (i < user_text.length) {
+            if (user_text[i] !== " ") {
+                word_buf += user_text[i];
+            } else { // if space
+                ret_str += " ";
+                if (is_correct[word_index] === "0") { // if wrong set the color red
+                    ret_str += "<span style=\"color:red;\">" + word_buf + "</span>";
+                } else { // if right color black
+                    ret_str += word_buf;
+                }
+                word_buf = "";
+                word_index++;
+            }
+            i++;
+        }
+        // put the last word
+        if (is_correct[word_index] === "0") { // if wrong set the color red
+            ret_str += "<span style=\"color:red;\">" + word_buf + "</span>";
+        } else { // if right color black
+            ret_str += word_buf;
+        }
+        return {"colored_sentence" : ret_str}
+    }
+
     comparePronunciation = (cp, pt) => {
 
         // cp = "hhaw mahch taym duw yuw spehnd aan riydihng ah peyper";/*
@@ -85,11 +119,14 @@ class Practice extends React.Component {
     render() {
         const stt_result = this.props.stt_result
         const speechace_score = this.props.speechace_score
+        const user_text = this.props.user_text
+        const is_correct = this.props.is_correct
         const correct_pronunciation = this.props.correct_pronunciation
         const phonetic_transcription = this.props.phonetic_transcription
         const google_result = this.props.google_result
         const tts_result = this.props.tts_result
         const orig_audio = this.props.orig_audio
+        const google_stt_result = this.props.google_stt_result
         const top_border = { "color": "border", "size": "medium", "style": "dashed", "side": "bottom" }
         // const styles = StyleSheet.create({
         //     bold: {fontWeight: 'bold'},
@@ -101,7 +138,7 @@ class Practice extends React.Component {
             <Grid
                 fill
                 rows={['xsmall', 0, 'flex', 0, 'flex']}
-                columns={['small','flex','flex']}
+                columns={['small','flex','small']}
                 gap="small"
                 pad="medium"
                 areas={[
@@ -160,7 +197,8 @@ class Practice extends React.Component {
                 </Box>
                 <Box gridArea="result_speechace" round="medium" pad="medium" margin="small"
                      alignSelf="center" background="light-1">
-
+                    <div
+                        dangerouslySetInnerHTML={{__html: this.colorText(user_text, is_correct).colored_sentence}} />
                     <Button margin="medium"
                             primary label="Why this result?"
                             onClick={(e)=>this.switchCollapsible(1)}
@@ -180,21 +218,21 @@ class Practice extends React.Component {
                             primary label="What does the grade mean?"
                             onClick={(e)=>this.switchCollapsible(3)}
                     />
-                    <Collapsible direction='vertical' open={this.state.speechace_open}>
+                    <Collapsible direction='vertical' open={this.state.grade_meaning_open}>
 					Explanations
                     </Collapsible>
                     <Button margin="medium"
                             primary label="Why am I getting this result?"
                             onClick={(e)=>this.switchCollapsible(4)}
                     />
-                    <Collapsible direction='vertical' open={this.state.speechace_open}>
+                    <Collapsible direction='vertical' open={this.state.grade_reason_open}>
 					Explanations
                     </Collapsible>
                     <Button margin="medium"
                             primary label="Get more evaluation"
                             onClick={(e)=>this.switchCollapsible(5)}
                     />
-                    <Collapsible direction='vertical' open={this.state.speechace_open}>
+                    <Collapsible direction='vertical' open={this.state.grade_more_open}>
 					Explanations
                     </Collapsible>
                 </Box>
@@ -225,10 +263,11 @@ class Practice extends React.Component {
                 <Box gridArea="name_test" alignSelf="center">
                     <Heading level="3" margin="medium" alignSelf="center">Your Recordings</Heading>
                 </Box>
-                <Box gridArea="result_test" round="medium" pad="medium" margin="small"
+                <Box fill="false" gridArea="result_test" round="medium" pad="medium" margin="small"
                      alignSelf="center" background="light-1">
-                    <Button onClick={() => this.playAudio(tts_result)}>Play</Button>
-                    <Button onClick={() => this.playAudio(orig_audio)}>Play mine</Button>
+                    <Button fill="false" primary label="Correct Pronunciation" icon={<PlayFill/>} onClick={() => this.playAudio(tts_result)} />
+                    <Button fill="false" primary label="My Pronunciation" icon={<PlayFill/>} onClick={() => this.playAudio(orig_audio)} />
+                    <Text>{google_stt_result}</Text>
                 </Box>
                 <Box gridArea="score_test" alignSelf="center">
                     <Heading level="3" alignSelf="center">A</Heading>
@@ -243,9 +282,12 @@ const mapStateToProps = (state) => ({
     speechace_score: state.speechace_score,
     correct_pronunciation: state.correct_pronunciation,
     phonetic_transcription: state.phonetic_transcription,
+    user_text: state.user_text,
+    is_correct: state.is_correct,
     google_result: state.google_result,
     tts_result: state.tts_result,
     orig_audio: state.orig_audio,
+    google_stt_result: state.google_stt_result,
 })
 
 const mapDispatchToProps = {}

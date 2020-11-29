@@ -27,13 +27,15 @@ class FileUploadView(APIView):
         print(request.data)
         file_obj = request.data['file']
         script = request.data['script']
-        stt_result, phonetic_transcription, correct_pronunciation, speechace_score, tts_result, orig_audio = handle_uploaded_file(file_obj, script)
+        stt_result, phonetic_transcription, correct_pronunciation, speechace_score, tts_result, orig_audio, google_stt_result \
+         = handle_uploaded_file(file_obj, script)
         # print("Put response :" + stt_result)
         return Response(data={"stt_result": stt_result, 
         "phonetic_transcription": phonetic_transcription, \
         "correct_pronunciation": correct_pronunciation, \
         "tts_result": base64.b64encode(tts_result), \
-        "orig_audio": base64.b64encode(orig_audio),
+        "orig_audio": base64.b64encode(orig_audio), \
+        "google_stt_result": google_stt_result,
         }, status=status.HTTP_201_CREATED)
 
 def handle_uploaded_file(raw_audio, script):
@@ -48,10 +50,11 @@ def handle_uploaded_file(raw_audio, script):
     # stt_result = stt.MozillaSTT('myfile.wav')
     tts_path, response_audio = stt.google_tts(script)
     response = stt.google_transcribe('myfile.wav')
+    google_stt_result = response
     # stt.play_audio_pydub(tts_path)
     # stt.play_audio_pydub('myfile.wav')
 
     stt_result = stt.simple_word_scorer(stt.script_converter(script), response) 
-    phonetic_transcription, correct_pronunciation = SpeechAce(user_text=script, user_file='myfile.wav').score_pronunciation()
+    user_text, phonetic_transcription, correct_pronunciation, is_correct = SpeechAce(user_text=script, user_file='myfile.wav').score_pronunciation()
     speechace_score = SpeechAce(user_text=script, user_file='myfile.wav').get_score()
-    return stt_result[0], phonetic_transcription, correct_pronunciation, speechace_score, response_audio, orig_audio
+    return stt_result[0], user_text, phonetic_transcription, correct_pronunciation, is_correct, speechace_score, response_audio, orig_audio, google_stt_result

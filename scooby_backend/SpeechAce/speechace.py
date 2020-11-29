@@ -25,8 +25,21 @@ class SpeechAce():
         word_score_list = response_json["text_score"]["word_score_list"]
         phonetic_transcription, correct_pronunciation = self.process_phone_scores(word_score_list)
 
+        # get words that are wrong
+        actual_text = self.user_text.split()
+        user_transcript = phonetic_transcription.split()
+        correct_transcript = correct_pronunciation.split()
+
+        iscorrect = ""
+
+        for i in range(len(user_transcript)):
+        	if user_transcript[i] == correct_transcript[i]:
+        		iscorrect += "1"
+        	else:
+        		iscorrect += "0"
+
 #         return response.text
-        return phonetic_transcription, correct_pronunciation
+        return self.user_text, phonetic_transcription, correct_pronunciation, iscorrect
 
     def get_score(self):
         url = self.url

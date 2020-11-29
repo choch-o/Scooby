@@ -3,6 +3,8 @@ const initialState = {
     posts: [],
     loading:false,
     stt_result: "",
+    user_text: "",
+    is_correct: "",
     phonetic_transcription: "",
     correct_pronunciation: "",
     google_result: "",
@@ -31,8 +33,11 @@ const postReducer = (state = initialState, action) => {
                 stt_result: action.payload.stt_result,
                 correct_pronunciation: action.payload.correct_pronunciation,
                 phonetic_transcription: action.payload.phonetic_transcription,
+                user_text: action.payload.user_text,
+                is_correct: action.payload.is_correct,
                 tts_result: action.payload.tts_result,
                 orig_audio: action.payload.orig_audio,
+                google_stt_result: action.payload.google_stt_result,
             };
         }
         default:
