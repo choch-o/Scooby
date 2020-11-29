@@ -6,6 +6,8 @@ const initialState = {
     phonetic_transcription: "",
     correct_pronunciation: "",
     google_result: "",
+    tts_result: "",
+    orig_audio: "",
 };
 
 const postReducer = (state = initialState, action) => {
@@ -24,9 +26,14 @@ const postReducer = (state = initialState, action) => {
         }
 
         case Types.UPLOAD_FILE: {
-            return {...state, stt_result: action.payload.stt_result,
+            return {...state, 
+                speechace_score: action.payload.speechace_score,
+                stt_result: action.payload.stt_result,
                 correct_pronunciation: action.payload.correct_pronunciation,
-                phonetic_transcription: action.payload.phonetic_transcription};
+                phonetic_transcription: action.payload.phonetic_transcription,
+                tts_result: action.payload.tts_result,
+                orig_audio: action.payload.orig_audio,
+            };
         }
         default:
             return state;

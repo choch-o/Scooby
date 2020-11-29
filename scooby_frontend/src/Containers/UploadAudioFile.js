@@ -24,7 +24,6 @@ class UploadAudioFile extends React.Component {
         formData.append("name", this.state.selectedFile.name);
         formData.append("script", this.state.script);
 
-
         console.log("name: " + formData.get("name"))
         console.log("script: " + formData.get("script"))
 

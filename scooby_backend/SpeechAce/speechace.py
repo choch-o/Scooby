@@ -28,6 +28,31 @@ class SpeechAce():
 #         return response.text
         return phonetic_transcription, correct_pronunciation
 
+    def get_score(self):
+        url = self.url
+        url += "scoring/text/v0.5/json" + "?" + 'key=' + self.key + '&dialect=' + self.dialect + \
+               '&user_id=' + self.user_id
+        payload = {'text': self.user_text, 'question_info': '\'u1/q1\'', 'include_fluency': '1'}
+        user_file_handle = open(self.user_file, 'rb')
+        files = {'user_audio_file': user_file_handle}
+        headers = {}
+        response = requests.request("POST", url, headers=headers, data=payload, files=files)
+        response_json = response.json()
+        score = response_json["text_score"]["quality_score"]
+        if score >= 90:
+            grade = "A"
+        elif score >= 80 and score < 90:
+            grade = "B"
+        elif score >= 70 and score < 80:
+            grade = "C"
+        elif score >= 60 and score < 70:
+            grade = "D"
+        else:
+            grade = "F"
+
+        return grade
+
+
     def validate_text(self):
         '''
         validate whether all the words in the text
