@@ -1,5 +1,5 @@
 # Scooby
---------------
+
 # Code Structure
 Important files are highlighted with ** ** . (Not all files are listed)
 ```
