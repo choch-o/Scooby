@@ -56,19 +56,20 @@ def handle_uploaded_file(raw_audio, script):
     
     # print(raw_audio.read())
     
-    with open("myfile." + audio_string.split('.')[1], mode='bw') as f:
+    with open(audio_string, mode='bw') as f:
         orig_audio = raw_audio.read()
         f.write(orig_audio)
-    stt.mp3m4a_to_wav("myfile." + audio_string.split('.')[1])
+    new_audio_path = stt.mp3m4a_to_wav(audio_string)
     # stt_result = stt.MozillaSTT('myfile.wav')
     tts_path, response_audio = stt.google_tts(script)
-    response, google_stt_result = stt.google_transcribe('myfile.wav')
+    response, google_stt_result = stt.google_transcribe(new_audio_path)
+    # print (response, google_stt_result)
     # stt.play_audio_pydub(tts_path)
     # stt.play_audio_pydub('myfile.wav')
 
-    stt_result = stt.simple_word_scorer(stt.script_converter(script), response) 
+    # stt_result = stt.simple_word_scorer(stt.script_converter(script), response) 
 
-    speechace = SpeechAce(user_text=script, user_file='myfile.wav')
+    speechace = SpeechAce(user_text=script, user_file=new_audio_path)
     user_text, phonetic_transcription, correct_pronunciation, is_correct = speechace.score_pronunciation()
     speechace_score, syllable_count, correct_syllable_count, word_count, correct_word_count, ielts_estimate, pte_estimate = speechace.get_score()
-    return stt_result[0], user_text, phonetic_transcription, correct_pronunciation, is_correct, speechace_score, response_audio, orig_audio, google_stt_result, syllable_count, correct_syllable_count, word_count, correct_word_count, ielts_estimate, pte_estimate
+    return "unused_text", user_text, phonetic_transcription, correct_pronunciation, is_correct, speechace_score, response_audio, orig_audio, google_stt_result, syllable_count, correct_syllable_count, word_count, correct_word_count, ielts_estimate, pte_estimate

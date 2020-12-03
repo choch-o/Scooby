@@ -21,7 +21,7 @@ class SpeechAce():
         response = requests.request("POST", url, headers=headers, data=payload, files=files)
 
         response_json = response.json()
-        print(response_json)
+        # print(response_json)
         word_score_list = response_json["text_score"]["word_score_list"]
         phonetic_transcription, correct_pronunciation = self.process_phone_scores(word_score_list)
 
@@ -105,9 +105,9 @@ class SpeechAce():
 
         response = requests.request("POST", url, headers=headers, data = payload, files = files)
 
-        print("Transcribe response")
+        # print("Transcribe response")
         response_text = response.text.encode('utf8')
-        print(response_text)
+        # print(response_text)
         return response_text
 
     def score_phoneme_list(self):
@@ -125,7 +125,7 @@ class SpeechAce():
 
         response_text = response.text.encode('utf8')
         response_json = response.json()
-        print(response_json)
+        # print(response_json)
         phone_score_list = response_json["word_score"]["phone_score_list"]
         phonetic_transcription = self.process_phone_scores(phone_score_list)
 

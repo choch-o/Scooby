@@ -16,9 +16,9 @@ from pydub import AudioSegment
 # from pydub.playback import play
 # import simpleaudio as sa
 
-from google.cloud import speech_v1p1beta1 as speech
+# from google.cloud import speech_v1p1beta1 as speech
 from google.cloud import texttospeech
-# from google.cloud import speech
+from google.cloud import speech
 try:
     from shhlex import quote
 except ImportError:
@@ -33,6 +33,9 @@ def mp3m4a_to_wav(audio_file_name):
         sound = AudioSegment.from_file(audio_file_name)
         audio_file_name = audio_file_name.split('.')[0] + '.wav'
         sound.export(audio_file_name, format="wav")
+
+
+    return audio_file_name.split('.')[0] + '.wav'
 
 def frame_rate_channel(audio_file_name):
     with wave.open(audio_file_name, "rb") as wave_file:
@@ -162,17 +165,23 @@ def google_transcribe(audio_file_path):
     audio = speech.RecognitionAudio(content = content)
 
     config = speech.RecognitionConfig(encoding=speech.RecognitionConfig.AudioEncoding.LINEAR16,sample_rate_hertz=frame_rate,
-        language_code='en-US',
-        enable_word_confidence=True)
+        language_code='en-US')
     # config = speech.RecognitionConfig(encoding=speech.RecognitionConfig.AudioEncoding.LINEAR16,             sample_rate_hertz=frame_rate,
     # language_code='en-US'
     # )
 
     # Detects speech in the audio file
     response = client.recognize(config=config, audio=audio)
-    # print(response)
+    transcript = ""
+    if (len(response.results)) == 0:
+        transcript = "Sorry, the problem with API, ignore this output"
+    else:
+        transcript = response.results[0].alternatives[0].transcript
+    print(response.results)
+    print(response)
 
-    return response, response.results[0].alternatives[0].transcript
+
+    return response, transcript
 
 
 def simple_word_scorer(script, response):
