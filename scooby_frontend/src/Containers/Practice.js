@@ -29,6 +29,9 @@ class Practice extends React.Component {
             this.setState({ grade_more: this.state.grade_more ? false : true });
         }
     }
+    scooby_alert() {
+        alert("Dumb scooby reported! Sorry for the inconvenience. Please try other recordings.")
+    }
     colorText = (user_text, is_correct) => {
         // user_text When practicing the pronunciation, we should also let users effectively do it through interactions with AI.
         // is_correct "1010111110111011"
@@ -256,6 +259,11 @@ class Practice extends React.Component {
                             </Collapsible>
 
                         </Box>
+                            <Button margin="medium"
+                                    primary label="Ignore this result (Dumb Scooby!)"
+                                    onClick={(e)=>this.scooby_alert()}
+                            />
+
                         </Collapsible>
                     </Box>
                     <Box gridArea="score_speechace" alignSelf="center" direction="column" width="45%">
