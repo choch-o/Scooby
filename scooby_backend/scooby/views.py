@@ -61,7 +61,7 @@ def handle_uploaded_file(raw_audio, script):
         f.write(orig_audio)
     new_audio_path = stt.mp3m4a_to_wav(audio_string)
     # stt_result = stt.MozillaSTT('myfile.wav')
-    tts_path, response_audio = stt.google_tts(script)
+    tts_path, response_audio = stt.google_tts(script, audio_string)
     response, google_stt_result = stt.google_transcribe(new_audio_path)
     # print (response, google_stt_result)
     # stt.play_audio_pydub(tts_path)

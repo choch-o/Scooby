@@ -312,7 +312,7 @@ def script_converter(raw_script):
 #     # play_obj.wait_done()  # Wait until sound has finished playing
 
 
-def google_tts(raw_script):
+def google_tts(raw_script, filename):
     client = texttospeech.TextToSpeechClient()
     synthesis_input = texttospeech.SynthesisInput(text=raw_script)
     # Build the voice request, select the language code ("en-US") and the ssml
@@ -327,7 +327,7 @@ def google_tts(raw_script):
     response = client.synthesize_speech(
         input=synthesis_input, voice=voice, audio_config=audio_config
     )
-    filename = "tts_myfile.wav"
+    filename = "tts_" + filename.split(".")[0] + ".wav"
     with open(filename, "wb") as out:
         out.write(response.audio_content)
     return filename, response.audio_content
